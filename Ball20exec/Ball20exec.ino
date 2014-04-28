@@ -80,5 +80,29 @@ void loop() {
 
 }
 
+String getGPSdata() {
+  String gpsData ="";
+  
+  //read the gpsData
+  
+  return gpsData;
+}
+
+String getGyroData() {
+  String gyroData ="";
+  
+  //read the gyroData
+  
+  return gyroData;
+}
+
+String getAccelData() {
+  String accelData ="";
+  
+  //read the accelData
+  
+  return accelData;
+}
+
 
 
