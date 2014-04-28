@@ -13,9 +13,19 @@
 
 
 //Initialize constants for pins
-static const int GPSRXPin = 3, GPSTXPin = 2;
-static const uint32_t GPSBaud = 4800;
-static const int SD_PIN_OUT = 10;
+static const int GPSRXPin = 3, GPSTXPin = 2; //note that TX on arduino connects to RX on gps, and vice versa
+static const uint32_t GPSBaud = 9600;
+static const int SD_PIN_OUT = 10; // for sdcard
+/** PIN - assignment for the SD Card Reader
+ * MOSI - pin 11
+ * MISO - pin 12
+ * CLK - pin 13
+ * CS - pin 4
+ **/
+ /**PIN - reservation from wire.h for the gyro/acc
+  * SLC - A5
+  * SDA - A4
+  **/
 
 
 //Initialize variables for stuff
@@ -35,7 +45,7 @@ long timeStamp;
 void setup() {
   pinMode(SD_PIN_OUT, OUTPUT);
 
-timeStamp = millis();
+  timeStamp = millis();
 }
 
 
@@ -54,13 +64,13 @@ void loop() {
    * dataString += ","; 
    * }
    }**/
-//read timestamp, add to string
+  //read timestamp, add to string
 
-//read from GPS, append to String
+  //read from GPS, append to String
 
-//read from Accelerometer, append to string
+  //read from Accelerometer, append to string
 
-//read from Gyroscope, append to string
+  //read from Gyroscope, append to string
 
 
 
@@ -76,33 +86,34 @@ void loop() {
     Serial.println("error opening datalog.txt");
   } 
 
-//stop - conditions, close file, stop logging
+  //stop - conditions, close file, stop logging
 
 }
 
 String getGPSdata() {
   String gpsData ="";
-  
+
   //read the gpsData
-  
+
   return gpsData;
 }
 
 String getGyroData() {
   String gyroData ="";
-  
+
   //read the gyroData
-  
+
   return gyroData;
 }
 
 String getAccelData() {
   String accelData ="";
-  
+
   //read the accelData
-  
+
   return accelData;
 }
+
 
 
 
