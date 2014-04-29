@@ -44,14 +44,22 @@ File logFile;
 long timeStamp;
 
 void setup() {
+  Serial.begin(115200);
+  
+  //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
-  Serial.begin(9600);
+  
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
     // don't do anything more:
     return;
   }
   Serial.println("card initialized.");
+  
+  //GPS-related stuff 
+  ss.begin(GPSBaud);
+  
+  //set Time NOW
   timeStamp = millis();
 }
 
@@ -91,7 +99,7 @@ void loop() {
   //stop - conditions, close file, stop logging
 
 //be a bastard
-delay(100);
+smartDelay(100);
 }
 
 String getGPSdata() {
@@ -121,6 +129,16 @@ String getAccelData() {
   return "Accelerometer data OK";
 }
 
+//Custom Delay - method for making sure the GPS - object doesn't time out
+static void smartDelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do 
+  {
+    while (ss.available())
+      gps.encode(ss.read());
+  } while (millis() - start < ms);
+}
 
 
 
