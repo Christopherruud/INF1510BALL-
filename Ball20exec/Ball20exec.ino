@@ -16,16 +16,17 @@
 static const int GPSRXPin = 3, GPSTXPin = 2; //note that TX on arduino connects to RX on gps, and vice versa
 static const uint32_t GPSBaud = 9600;
 static const int SD_PIN_OUT = 10; // for sdcard
+static const int chipSelect = 4; //for SD card
 /** PIN - assignment for the SD Card Reader
  * MOSI - pin 11
  * MISO - pin 12
  * CLK - pin 13
  * CS - pin 4
  **/
- /**PIN - reservation from wire.h for the gyro/acc
-  * SLC - A5
-  * SDA - A4
-  **/
+/**PIN - reservation from wire.h for the gyro/acc
+ * SLC - A5
+ * SDA - A4
+ **/
 
 
 //Initialize variables for stuff
@@ -44,7 +45,13 @@ long timeStamp;
 
 void setup() {
   pinMode(SD_PIN_OUT, OUTPUT);
-
+  Serial.begin(9600);
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+    return;
+  }
+  Serial.println("card initialized.");
   timeStamp = millis();
 }
 
@@ -53,27 +60,22 @@ void loop() {
 
   String dataString = "";
 
-  /**  read three sensors and append to the string:
-   * Will need to be changed for our data.
-   *
-   *
-   * for (int analogPin = 0; analogPin < 3; analogPin++) {
-   * int sensor = analogRead(analogPin);
-   * dataString += String(sensor);
-   * if (analogPin < 2) {
-   * dataString += ","; 
-   * }
-   }**/
-  //read timestamp, add to string
 
+  //read timestamp, add to string
+  dataString += String(millis());
+  dataString += ",";
   //read from GPS, append to String
+  dataString += getGPSdata();
+  dataString += ",";
 
   //read from Accelerometer, append to string
-
+  dataString += getAccelData();
+  dataString += ",";
   //read from Gyroscope, append to string
+  dataString += getGyroData();
 
-
-
+  // open the file
+  logFile = SD.open("datalog.txt", FILE_WRITE);
   // if the file is available, write to it:
   if (logFile) {
     logFile.println(dataString);
@@ -88,6 +90,8 @@ void loop() {
 
   //stop - conditions, close file, stop logging
 
+//be a bastard
+delay(100);
 }
 
 String getGPSdata() {
@@ -95,7 +99,8 @@ String getGPSdata() {
 
   //read the gpsData
 
-  return gpsData;
+  //return gpsData;
+  return "GPS data OK";
 }
 
 String getGyroData() {
@@ -103,7 +108,8 @@ String getGyroData() {
 
   //read the gyroData
 
-  return gyroData;
+  //return gyroData;
+  return "Gyro data OK";
 }
 
 String getAccelData() {
@@ -111,8 +117,12 @@ String getAccelData() {
 
   //read the accelData
 
-  return accelData;
+  //return accelData;
+  return "Accelerometer data OK";
 }
+
+
+
 
 
 
