@@ -4,6 +4,7 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <SD.h>
+#include<stdlib.h>
 
 /** Framework and pseudocode for the Ball2.0 project 
  * Much of this code is derived from examples in various
@@ -45,20 +46,20 @@ long timeStamp;
 
 void setup() {
   Serial.begin(115200);
-  
+
   //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
-  
+
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
     // don't do anything more:
     return;
   }
   Serial.println("card initialized.");
-  
+
   //GPS-related stuff 
   ss.begin(GPSBaud);
-  
+
   //set Time NOW
   timeStamp = millis();
 }
@@ -98,8 +99,8 @@ void loop() {
 
   //stop - conditions, close file, stop logging
 
-//be a bastard
-smartDelay(100);
+  //be a bastard
+  smartDelay(100);
 }
 
 String getGPSdata() {
@@ -108,6 +109,10 @@ String getGPSdata() {
   //read the gpsData
 
   //return gpsData;
+  //printFloat(gps.location.lat(), gps.location.isValid(), 11, 6);
+  //printFloat(gps.location.lng(), gps.location.isValid(), 12, 6);
+  //dtostrf(FLOAT,WIDTH,PRECSISION,BUFFER);
+  String gpsData += dtostrf(gps.location.lat(), 8, 6, );
   return "GPS data OK";
 }
 
@@ -137,11 +142,8 @@ static void smartDelay(unsigned long ms)
   {
     while (ss.available())
       gps.encode(ss.read());
-  } while (millis() - start < ms);
+  } 
+  while (millis() - start < ms);
 }
-
-
-
-
 
 
