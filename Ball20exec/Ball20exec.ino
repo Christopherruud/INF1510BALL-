@@ -835,31 +835,11 @@ void loop() {
   //read from GPS, append to String
   dataString += getGPSdata();
   dataString += ",";
+  // read from GyroCellometer, append to String
+  dataString += getGyroData();
 
 
-  /**
-   * Serial.print(F("DEL:"));              //Delta T
-   * Serial.print(dt, DEC);
-   * Serial.print(F("#ACC:"));              //Accelerometer angle
-   * Serial.print(accel_angle_x, 2);
-   * Serial.print(F(","));
-   * Serial.print(accel_angle_y, 2);
-   * Serial.print(F(","));
-   * Serial.print(accel_angle_z, 2);
-   * Serial.print(F("#GYR:"));
-   * Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
-   * Serial.print(F(","));
-   * Serial.print(unfiltered_gyro_angle_y, 2);
-   * Serial.print(F(","));
-   * Serial.print(unfiltered_gyro_angle_z, 2);
-   * Serial.print(F("#FIL:"));             //Filtered angle
-   * Serial.print(angle_x, 2);
-   * Serial.print(F(","));
-   * Serial.print(angle_y, 2);
-   * Serial.print(F(","));
-   * Serial.print(angle_z, 2);
-   * Serial.println(F(""));
-   **/
+  
 
 
 
@@ -944,6 +924,30 @@ String getGyroData() {
   // Update the saved data with the latest values
   set_last_read_angle_data(timeStamp, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
   //all gyro data read and stored.
+  
+  /**
+   * Serial.print(F("DEL:"));              //Delta T
+   * Serial.print(dt, DEC);
+   * Serial.print(F("#ACC:"));              //Accelerometer angle
+   * Serial.print(accel_angle_x, 2);
+   * Serial.print(F(","));
+   * Serial.print(accel_angle_y, 2);
+   * Serial.print(F(","));
+   * Serial.print(accel_angle_z, 2);
+   * Serial.print(F("#GYR:"));
+   * Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+   * Serial.print(F(","));
+   * Serial.print(unfiltered_gyro_angle_y, 2);
+   * Serial.print(F(","));
+   * Serial.print(unfiltered_gyro_angle_z, 2);
+   * Serial.print(F("#FIL:"));             //Filtered angle
+   * Serial.print(angle_x, 2);
+   * Serial.print(F(","));
+   * Serial.print(angle_y, 2);
+   * Serial.print(F(","));
+   * Serial.print(angle_z, 2);
+   * Serial.println(F(""));
+   **/
   return "Gyro data OK";
 }
 
