@@ -874,9 +874,13 @@ String getGPSdata() {
   
   dtostrf(gps.location.lat(), 8, 6, gpsData);
   String gpsLatString(gpsData);
+  dtostrf(gps.location.lng(), 8, 6, gpsData);
+  String gpsLngString(gpsData);
   
   gpsString += (", ");
   gpsString += gpsLatString;
+  gpsString += (", ");
+  gpsString += gpsLonString;
   //return "GPS data OK";
   return gpsString;
 }
