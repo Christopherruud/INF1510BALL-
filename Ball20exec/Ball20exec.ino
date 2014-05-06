@@ -880,7 +880,7 @@ String getGPSdata() {
   gpsString += (", ");
   gpsString += gpsLatString;
   gpsString += (", ");
-  gpsString += gpsLonString;
+  gpsString += gpsLngString;
   //return "GPS data OK";
   return gpsString;
 }
@@ -928,7 +928,6 @@ String getGyroData() {
   // Update the saved data with the latest values
   set_last_read_angle_data(timeStamp, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
   //all gyro data read and stored.
-  
   /**
    * Serial.print(F("DEL:"));              //Delta T
    * Serial.print(dt, DEC);
