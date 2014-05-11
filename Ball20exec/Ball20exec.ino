@@ -801,6 +801,8 @@ unsigned long timeStamp;
 
 void setup() {
   Serial.begin(115200);
+  int error;
+  uint8_t c;
 
   //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
@@ -815,7 +817,16 @@ void setup() {
   //GPS-related stuff 
   ss.begin(GPSBaud);
 
-  //set Time NOW
+  //gyro - related stuff
+  Wire.begin();
+  error = MPU6050_read (MPU6050_WHO_AM_I, &c, 1);
+  error = MPU6050_read (MPU6050_PWR_MGMT_2, &c, 1);
+  MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
+
+  //Initialize the angles
+  calibrate_sensors();  
+  set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0);
+
 }
 
 
@@ -839,7 +850,7 @@ void loop() {
   dataString += getGyroData();
 
 
-  
+
 
 
 
@@ -871,13 +882,12 @@ String getGPSdata() {
 
   //printFloat(gps.location.lng(), gps.location.isValid(), 12, 6);
   //dtostrf(FLOAT,WIDTH,PRECSISION,BUFFER);
-  
+
   dtostrf(gps.location.lat(), 8, 6, gpsData);
   String gpsLatString(gpsData);
   dtostrf(gps.location.lng(), 8, 6, gpsData);
   String gpsLngString(gpsData);
-  
-  gpsString += (", ");
+
   gpsString += gpsLatString;
   gpsString += (", ");
   gpsString += gpsLngString;
@@ -928,30 +938,44 @@ String getGyroData() {
   // Update the saved data with the latest values
   set_last_read_angle_data(timeStamp, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
   //all gyro data read and stored.
-  /**
-   * Serial.print(F("DEL:"));              //Delta T
-   * Serial.print(dt, DEC);
-   * Serial.print(F("#ACC:"));              //Accelerometer angle
-   * Serial.print(accel_angle_x, 2);
-   * Serial.print(F(","));
-   * Serial.print(accel_angle_y, 2);
-   * Serial.print(F(","));
-   * Serial.print(accel_angle_z, 2);
-   * Serial.print(F("#GYR:"));
-   * Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
-   * Serial.print(F(","));
-   * Serial.print(unfiltered_gyro_angle_y, 2);
-   * Serial.print(F(","));
-   * Serial.print(unfiltered_gyro_angle_z, 2);
-   * Serial.print(F("#FIL:"));             //Filtered angle
-   * Serial.print(angle_x, 2);
-   * Serial.print(F(","));
-   * Serial.print(angle_y, 2);
-   * Serial.print(F(","));
-   * Serial.print(angle_z, 2);
-   * Serial.println(F(""));
-   **/
-  return "Gyro data OK";
+
+  //   Serial.print(F("DEL:"));              //Delta T
+  //   Serial.print(dt, DEC);
+  //   Serial.print(F("#ACC:"));              //Accelerometer angle
+  //   Serial.print(accel_angle_x, 2);
+  //   Serial.print(F(","));
+  //   Serial.print(accel_angle_y, 2);
+  //   Serial.print(F(","));
+  //   Serial.print(accel_angle_z, 2);
+  //   Serial.print(F("#GYR:"));
+  //   Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  //   Serial.print(F(","));
+  //   Serial.print(unfiltered_gyro_angle_y, 2);
+  //   Serial.print(F(","));
+  //   Serial.print(unfiltered_gyro_angle_z, 2);
+  //   Serial.print(F("#FIL:"));             //Filtered angle
+  //   Serial.print(angle_x, 2);
+  //   Serial.print(F(","));
+  //   Serial.print(angle_y, 2);
+  //   Serial.print(F(","));
+  //   Serial.print(angle_z, 2);
+  //   Serial.println(F(""));
+
+char gyroDataTemp[10];
+
+//working on the filtered angle. Accelleration data not yet implemented.
+dtostrf(angle_x, 4, 2, gyroDataTemp);
+gyroData += String(gyroDataTemp);
+gyroData += ", ";
+dtostrf(angle_y, 4, 2, gyroDataTemp);
+gyroData += String(gyroDataTemp);
+gyroData += ", ";
+dtostrf(angle_z, 4, 2, gyroDataTemp);
+gyroData += String(gyroDataTemp);
+
+return gyroData;
+
+  
 }
 
 
@@ -1050,4 +1074,5 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
+
 
