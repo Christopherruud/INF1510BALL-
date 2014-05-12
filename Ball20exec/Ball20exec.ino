@@ -3,7 +3,7 @@
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <SD.h>
+#include <SdFat.h>
 #include<stdlib.h>
 
 /** Framework and pseudocode for the Ball2.0 project 
@@ -37,7 +37,9 @@ TinyGPSPlus gps;
 SoftwareSerial ss(GPSRXPin, GPSTXPin);
 
 // SD-card related stuff
-File logFile;
+
+SdFat sd;
+SdFile logFile;
 
 //INSANE AMOUNTS OF I2C - DEFINES
 
@@ -807,7 +809,7 @@ void setup() {
   //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
 
-  if (!SD.begin(chipSelect)) {
+  if (!sd.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
 
     //@TODO add warning mechanism prompting restart.  
@@ -815,11 +817,11 @@ void setup() {
   }
   Serial.println("card initialized.");
 
-  if (SD.exists("datalog.txt")) {
+  if (sd.exists("datalog.txt")) {
     Serial.println("Datafile already exists. Deleting..");
-    SD.remove("datalog.txt"); 
+    sd.remove("datalog.txt"); 
   }
-  if (!SD.exists("datalog.txt")) {
+  if (!sd.exists("datalog.txt")) {
     Serial.println("Datafile deleted..."); 
   } 
   else {
@@ -861,24 +863,35 @@ void loop() {
   // read from GyroCellometer, append to String
   dataString += getGyroData();
 
+  if (!logFile.open("datalog.txt", O_RDWR | O_CREAT | O_AT_END)) {
+    sd.errorHalt("opening datalog.txt for write failed");
+  }
+  // if the file opened okay, write to it:
+  //Serial.print("Writing to logfile.txt...");
+  logFile.println(dataString);
 
+  // close the file:
+  logFile.close();
+  // Serial.println("done.");
+  // print to the serial port too:
+  //Serial.println(dataString);
 
 
 
 
   // open the file
-  logFile = SD.open("datalog.txt", FILE_WRITE);
-  // if the file is available, write to it:
-  if (logFile) {
-    logFile.println(dataString);
-    logFile.close();
-    // print to the serial port too:
-    Serial.println(dataString);
-  }  
-  // if the file isn't open, pop up an error:
-  else {
-    Serial.println("error opening datalog.txt");
-  } 
+  //  logFile = SD.open("datalog.txt", FILE_WRITE);
+  //  // if the file is available, write to it:
+  //  if (logFile) {
+  //    logFile.println(dataString);
+  //    logFile.close();
+  //    // print to the serial port too:
+  //    Serial.println(dataString);
+  //  }  
+  //  // if the file isn't open, pop up an error:
+  //  else {
+  //    Serial.println("error opening datalog.txt");
+  //} 
 
   //stop - conditions, close file, stop logging
 
@@ -901,7 +914,7 @@ String getGPSdata() {
   String gpsLngString(gpsData);
 
   gpsString += gpsLatString;
-  gpsString += (", ");
+  gpsString += (",");
   gpsString += gpsLngString;
   //return "GPS data OK";
   return gpsString;
@@ -965,24 +978,32 @@ String getGyroData() {
   //   Serial.print(unfiltered_gyro_angle_y, 2);
   //   Serial.print(F(","));
   //   Serial.print(unfiltered_gyro_angle_z, 2);
-  //   Serial.print(F("#FIL:"));             //Filtered angle
-  //   Serial.print(angle_x, 2);
-  //   Serial.print(F(","));
-  //   Serial.print(angle_y, 2);
-  //   Serial.print(F(","));
-  //   Serial.print(angle_z, 2);
-  //   Serial.println(F(""));
+  //     Serial.print(F("#FIL:"));             //Filtered angle
+  //     Serial.print(angle_x, 2);
+  //     Serial.print(F(","));
+  //     Serial.print(angle_y, 2);
+  //     Serial.print(F(","));
+  //     Serial.print(angle_z, 2);
+  //     Serial.println(F(""));
 
-  char gyroDataTemp[10];
+  char gyroDataTemp[5] = "";
 
   //working on the filtered angle. Accelleration data not yet implemented.
+  //angle x
   dtostrf(angle_x, 4, 2, gyroDataTemp);
+  //Serial.println(gyroDataTemp);
   gyroData += String(gyroDataTemp);
-  gyroData += ", ";
+  gyroData += ",";
+  //angle y
+  memset(gyroDataTemp,'\0',5);
   dtostrf(angle_y, 4, 2, gyroDataTemp);
+  //Serial.println(gyroDataTemp);
   gyroData += String(gyroDataTemp);
-  gyroData += ", ";
+  gyroData += ",";
+  //angle z
+  memset(gyroDataTemp,'\0',5);
   dtostrf(angle_z, 4, 2, gyroDataTemp);
+  //Serial.println(gyroDataTemp);
   gyroData += String(gyroDataTemp);
 
   return gyroData;
@@ -1086,6 +1107,8 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
+
+
 
 
 
