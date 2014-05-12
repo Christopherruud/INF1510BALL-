@@ -896,7 +896,7 @@ void loop() {
   //stop - conditions, close file, stop logging
 
   //be a bastard
-  smartDelay(200);
+  smartDelay(100);
 }
 
 String getGPSdata() {
