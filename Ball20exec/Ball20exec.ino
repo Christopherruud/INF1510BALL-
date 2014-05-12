@@ -809,10 +809,22 @@ void setup() {
 
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
-    // don't do anything more:
+
+    //@TODO add warning mechanism prompting restart.  
     return;
   }
   Serial.println("card initialized.");
+
+  if (SD.exists("datalog.txt")) {
+    Serial.println("Datafile already exists. Deleting..");
+    SD.remove("datalog.txt"); 
+  }
+  if (!SD.exists("datalog.txt")) {
+    Serial.println("Datafile deleted..."); 
+  } 
+  else {
+    Serial.println("Deletion failed. Appending..."); 
+  }
 
   //GPS-related stuff 
   ss.begin(GPSBaud);
@@ -871,7 +883,7 @@ void loop() {
   //stop - conditions, close file, stop logging
 
   //be a bastard
-  smartDelay(100);
+  smartDelay(200);
 }
 
 String getGPSdata() {
@@ -961,21 +973,21 @@ String getGyroData() {
   //   Serial.print(angle_z, 2);
   //   Serial.println(F(""));
 
-char gyroDataTemp[10];
+  char gyroDataTemp[10];
 
-//working on the filtered angle. Accelleration data not yet implemented.
-dtostrf(angle_x, 4, 2, gyroDataTemp);
-gyroData += String(gyroDataTemp);
-gyroData += ", ";
-dtostrf(angle_y, 4, 2, gyroDataTemp);
-gyroData += String(gyroDataTemp);
-gyroData += ", ";
-dtostrf(angle_z, 4, 2, gyroDataTemp);
-gyroData += String(gyroDataTemp);
+  //working on the filtered angle. Accelleration data not yet implemented.
+  dtostrf(angle_x, 4, 2, gyroDataTemp);
+  gyroData += String(gyroDataTemp);
+  gyroData += ", ";
+  dtostrf(angle_y, 4, 2, gyroDataTemp);
+  gyroData += String(gyroDataTemp);
+  gyroData += ", ";
+  dtostrf(angle_z, 4, 2, gyroDataTemp);
+  gyroData += String(gyroDataTemp);
 
-return gyroData;
+  return gyroData;
 
-  
+
 }
 
 
@@ -1074,5 +1086,6 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
+
 
 
