@@ -803,7 +803,7 @@ void calibrate_sensors() {
 unsigned long timeStamp;
 
 void setup() {
-  Serial.begin(115200);
+  //Serial.begin(115200);
   int error;
   uint8_t c;
 
@@ -812,22 +812,22 @@ void setup() {
   pinMode(SHUTDOWN_PIN, INPUT);
 
   if (!sd.begin(chipSelect)) {
-    Serial.println("Card failed, or not present");
+    //Serial.println("Card failed, or not present");
 
     //@TODO add warning mechanism prompting restart.  
     return;
   }
-  Serial.println("card initialized.");
+  //Serial.println("card initialized.");
 
   if (sd.exists("datalog.txt")) {
-    Serial.println("Datafile already exists. Deleting..");
+    //Serial.println("Datafile already exists. Deleting..");
     sd.remove("datalog.txt"); 
   }
   if (!sd.exists("datalog.txt")) {
-    Serial.println("Datafile deleted..."); 
+   // Serial.println("Datafile deleted..."); 
   } 
   else {
-    Serial.println("Deletion failed. Appending..."); 
+    //Serial.println("Deletion failed. Appending..."); 
   }
 
   //GPS-related stuff 
@@ -900,8 +900,10 @@ if (switchState == LOW) {
 
     //be a bastard
     smartDelay(100);
-  } else {logFile.close();
-  Serial.println("Button is off");
+  } else {
+    logFile.sync();
+    logFile.close();
+  //Serial.println("Button is off");
   }
 }
 
