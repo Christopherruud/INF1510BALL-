@@ -18,7 +18,7 @@ static const int GPSRXPin = 3, GPSTXPin = 2; //note that TX on arduino connects 
 static const uint32_t GPSBaud = 9600;
 static const int SD_PIN_OUT = 10; // for sdcard
 static const int chipSelect = 4; //for SD card
-static const int SHUTDOWN_PIN = 8;
+static const int SHUTDOWN_PIN = 8; // for registering shutdown request
 /** PIN - assignment for the SD Card Reader
  * MOSI - pin 11
  * MISO - pin 12
@@ -803,12 +803,14 @@ void calibrate_sensors() {
 unsigned long timeStamp;
 
 void setup() {
-  //Serial.begin(115200);
+  Serial.begin(115200);
   int error;
   uint8_t c;
 
   //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
+  
+  //set up the pin assigned to halt request
   pinMode(SHUTDOWN_PIN, INPUT);
 
   if (!sd.begin(chipSelect)) {
@@ -824,7 +826,7 @@ void setup() {
     sd.remove("datalog.txt"); 
   }
   if (!sd.exists("datalog.txt")) {
-   // Serial.println("Datafile deleted..."); 
+    // Serial.println("Datafile deleted..."); 
   } 
   else {
     //Serial.println("Deletion failed. Appending..."); 
@@ -847,7 +849,7 @@ void setup() {
 
 
 void loop() {
-int switchState = 0;
+  int switchState = 0;
   String dataString = "";
 
 
@@ -855,14 +857,16 @@ int switchState = 0;
 
   timeStamp = millis();
 
-switchState = digitalRead(SHUTDOWN_PIN);
-if (switchState == LOW) {
+  switchState = digitalRead(SHUTDOWN_PIN);
+  if (switchState == LOW) {
     //read timestamp, add to string
     dataString += String(millis());
     dataString += ",";
+    
     //read from GPS, append to String
     dataString += getGPSdata();
     dataString += ",";
+    
     // read from GyroCellometer, append to String
     dataString += getGyroData();
 
@@ -870,40 +874,27 @@ if (switchState == LOW) {
       sd.errorHalt("opening datalog.txt for write failed");
     }
     // if the file opened okay, write to it:
-    //Serial.print("Writing to logfile.txt...");
     logFile.println(dataString);
+    
+    // print to the serial port too:
+    /**
+    * Serial.println(dataString);
+    **/
 
     // close the file:
     logFile.close();
-    // Serial.println("done.");
-    // print to the serial port too:
-    //Serial.println(dataString);
-
-
-
-
-    // open the file
-    //  logFile = SD.open("datalog.txt", FILE_WRITE);
-    //  // if the file is available, write to it:
-    //  if (logFile) {
-    //    logFile.println(dataString);
-    //    logFile.close();
-    //    // print to the serial port too:
-    //    Serial.println(dataString);
-    //  }  
-    //  // if the file isn't open, pop up an error:
-    //  else {
-    //    Serial.println("error opening datalog.txt");
-    //} 
+    
+    
 
     //stop - conditions, close file, stop logging
 
     //be a bastard
     smartDelay(100);
-  } else {
+  } 
+  else {
     logFile.sync();
     logFile.close();
-  //Serial.println("Button is off");
+    //Serial.println("Button is off");
   }
 }
 
@@ -1115,6 +1106,7 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
+
 
 
 
