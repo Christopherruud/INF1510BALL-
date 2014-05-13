@@ -18,6 +18,7 @@ static const int GPSRXPin = 3, GPSTXPin = 2; //note that TX on arduino connects 
 static const uint32_t GPSBaud = 9600;
 static const int SD_PIN_OUT = 10; // for sdcard
 static const int chipSelect = 4; //for SD card
+static const int SHUTDOWN_PIN = 8;
 /** PIN - assignment for the SD Card Reader
  * MOSI - pin 11
  * MISO - pin 12
@@ -808,6 +809,7 @@ void setup() {
 
   //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
+  pinMode(SHUTDOWN_PIN, INPUT);
 
   if (!sd.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
@@ -845,7 +847,7 @@ void setup() {
 
 
 void loop() {
-
+int switchState = 0;
   String dataString = "";
 
 
@@ -853,50 +855,54 @@ void loop() {
 
   timeStamp = millis();
 
+switchState = digitalRead(SHUTDOWN_PIN);
+if (switchState == LOW) {
+    //read timestamp, add to string
+    dataString += String(millis());
+    dataString += ",";
+    //read from GPS, append to String
+    dataString += getGPSdata();
+    dataString += ",";
+    // read from GyroCellometer, append to String
+    dataString += getGyroData();
 
-  //read timestamp, add to string
-  dataString += String(millis());
-  dataString += ",";
-  //read from GPS, append to String
-  dataString += getGPSdata();
-  dataString += ",";
-  // read from GyroCellometer, append to String
-  dataString += getGyroData();
+    if (!logFile.open("datalog.txt", O_RDWR | O_CREAT | O_AT_END)) {
+      sd.errorHalt("opening datalog.txt for write failed");
+    }
+    // if the file opened okay, write to it:
+    //Serial.print("Writing to logfile.txt...");
+    logFile.println(dataString);
 
-  if (!logFile.open("datalog.txt", O_RDWR | O_CREAT | O_AT_END)) {
-    sd.errorHalt("opening datalog.txt for write failed");
+    // close the file:
+    logFile.close();
+    // Serial.println("done.");
+    // print to the serial port too:
+    //Serial.println(dataString);
+
+
+
+
+    // open the file
+    //  logFile = SD.open("datalog.txt", FILE_WRITE);
+    //  // if the file is available, write to it:
+    //  if (logFile) {
+    //    logFile.println(dataString);
+    //    logFile.close();
+    //    // print to the serial port too:
+    //    Serial.println(dataString);
+    //  }  
+    //  // if the file isn't open, pop up an error:
+    //  else {
+    //    Serial.println("error opening datalog.txt");
+    //} 
+
+    //stop - conditions, close file, stop logging
+
+    //be a bastard
+    smartDelay(100);
+  } else {logFile.close();
+  Serial.println("Button is off");
   }
-  // if the file opened okay, write to it:
-  //Serial.print("Writing to logfile.txt...");
-  logFile.println(dataString);
-
-  // close the file:
-  logFile.close();
-  // Serial.println("done.");
-  // print to the serial port too:
-  //Serial.println(dataString);
-
-
-
-
-  // open the file
-  //  logFile = SD.open("datalog.txt", FILE_WRITE);
-  //  // if the file is available, write to it:
-  //  if (logFile) {
-  //    logFile.println(dataString);
-  //    logFile.close();
-  //    // print to the serial port too:
-  //    Serial.println(dataString);
-  //  }  
-  //  // if the file isn't open, pop up an error:
-  //  else {
-  //    Serial.println("error opening datalog.txt");
-  //} 
-
-  //stop - conditions, close file, stop logging
-
-  //be a bastard
-  smartDelay(100);
 }
 
 String getGPSdata() {
@@ -1107,6 +1113,7 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
+
 
 
 
