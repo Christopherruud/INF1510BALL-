@@ -18,7 +18,7 @@ static const int GPSRXPin = 3, GPSTXPin = 2; //note that TX on arduino connects 
 static const uint32_t GPSBaud = 9600;
 static const int SD_PIN_OUT = 10; // for sdcard
 static const int chipSelect = 4; //for SD card
-static const int SHUTDOWN_PIN = 8; // for registering shutdown request
+//static const int SHUTDOWN_PIN = 8; // for registering shutdown request, not needed anymore
 /** PIN - assignment for the SD Card Reader
  * MOSI - pin 11
  * MISO - pin 12
@@ -809,9 +809,9 @@ void setup() {
 
   //SD-related stuff
   pinMode(SD_PIN_OUT, OUTPUT);
-  
+
   //set up the pin assigned to halt request
-  pinMode(SHUTDOWN_PIN, INPUT);
+  // pinMode(SHUTDOWN_PIN, INPUT); // not needed anymore
 
   if (!sd.begin(chipSelect)) {
     //Serial.println("Card failed, or not present");
@@ -849,7 +849,7 @@ void setup() {
 
 
 void loop() {
-  int switchState = 0;
+  // int switchState = 0; // not needed anymore
   String dataString = "";
 
 
@@ -857,45 +857,45 @@ void loop() {
 
   timeStamp = millis();
 
-  switchState = digitalRead(SHUTDOWN_PIN);
-  if (switchState == LOW) {
-    //read timestamp, add to string
-    dataString += String(millis());
-    dataString += ",";
-    
-    //read from GPS, append to String
-    dataString += getGPSdata();
-    dataString += ",";
-    
-    // read from GyroCellometer, append to String
-    dataString += getGyroData();
+  //switchState = digitalRead(SHUTDOWN_PIN); // not needed anymore
+  //if (switchState == LOW) {// not needed anymore
+  //read timestamp, add to string
+  dataString += String(millis());
+  dataString += ",";
 
-    if (!logFile.open("datalog.txt", O_RDWR | O_CREAT | O_AT_END)) {
-      sd.errorHalt("opening datalog.txt for write failed");
-    }
-    // if the file opened okay, write to it:
-    logFile.println(dataString);
-    
-    // print to the serial port too:
-    /**
-    * Serial.println(dataString);
-    **/
+  //read from GPS, append to String
+  dataString += getGPSdata();
+  dataString += ",";
 
-    // close the file:
-    logFile.close();
-    
-    
+  // read from GyroCellometer, append to String
+  dataString += getGyroData();
 
-    //stop - conditions, close file, stop logging
-
-    //be a bastard
-    smartDelay(100);
-  } 
-  else {
-    logFile.sync();
-    logFile.close();
-    //Serial.println("Button is off");
+  if (!logFile.open("datalog.txt", O_RDWR | O_CREAT | O_AT_END)) {
+    sd.errorHalt("opening datalog.txt for write failed");
   }
+  // if the file opened okay, write to it:
+  logFile.println(dataString);
+
+  // print to the serial port too:
+  /**
+   * Serial.println(dataString);
+   **/
+
+  // close the file:
+  logFile.close();
+
+
+
+  //stop - conditions, close file, stop logging
+
+  //be a bastard
+  smartDelay(100);
+  /** } 
+   * else {
+   * logFile.sync();
+   * logFile.close();
+   * //Serial.println("Button is off");
+   } **/
 }
 
 String getGPSdata() {
@@ -1106,6 +1106,7 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
+
 
 
 
