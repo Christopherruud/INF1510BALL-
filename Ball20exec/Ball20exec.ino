@@ -988,7 +988,7 @@ String getGyroData() {
    * Serial.print(angle_z, 2);
    * Serial.println(F(""));
    */
-  char gyroDataTemp[5] = "";
+  char gyroDataTemp[7] = "";
 
   //working on the filtered angle. Accelleration data not yet implemented.
   //angle x
