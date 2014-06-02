@@ -10,6 +10,8 @@ Code used in the Ball+ - project at the University of Oslo,Institute of Informat
 
 The code coordinates an Arduino, a Skylab SKM53 GPS, a memory card reader/writer and a gyro/accelerometer.
 
+CODE is in the Ball20exec/ - folder, and required libraries are in the libraries/ -folder
+
 Format for the logfile:
 TIMESTAMP (millis),
 GPS LATITUDE (2.6),
